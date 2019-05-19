@@ -15,6 +15,10 @@ public class Player {
     predecessors.add(predecessor);
   }
 
+  public void removePredecessor(Player predecessor) {
+    predecessors.remove(predecessor);
+  }
+
   public boolean isTopPlayer() {
     return predecessors.isEmpty();
   }
