@@ -5,6 +5,7 @@ import entity.Player;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -14,6 +15,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class HelloFX extends Application {
@@ -21,6 +23,8 @@ public class HelloFX extends Application {
   private VBox leftPartContent;
   private VBox centralPartContent;
   private TextArea answerArea;
+  private TextField alphaField;
+  private ComboBox<Type> gameTypeDropdown;
 
   public static void main(String[] args) {
     launch(args);
@@ -44,19 +48,16 @@ public class HelloFX extends Application {
     VBox rightPartContent = new VBox();
 
     VBox temp = new VBox();
+    HBox box = new HBox();
     temp.setSpacing(20);
-    temp.getChildren().add(new Label("alpha"));
-    TextField alphaField = new TextField();
-    alphaField.textProperty().addListener((observable, oldValue, newValue) -> {
-      try {
-        initGame.setBalancedParam(Float.parseFloat(newValue));
-      } catch (NumberFormatException e) {
-        initGame.setBalancedParam(0.5f);
-      }
-    });
-    temp.getChildren().add(alphaField);
+    box.setSpacing(10);
+    box.getChildren().add(new Label("Alpha: "));
+    alphaField = new TextField();
+    box.getChildren().add(alphaField);
+    temp.getChildren().add(box);
+    temp.getChildren().add(leftPartContent);
 
-    contentBox.getChildren().addAll(leftPartContent, centralPartContent, rightPartContent);
+    contentBox.getChildren().addAll(temp, centralPartContent, rightPartContent);
 
     answerArea = new TextArea();
     rightPartContent.getChildren().add(answerArea);
@@ -109,43 +110,52 @@ public class HelloFX extends Application {
     });
     comboBox.valueProperty().setValue(4);
 
-    List<Type> types = new ArrayList<>();
-    types.add(Type.CONJUNCTIVE);
-    types.add(Type.DISJUNCTIVE);
-    types.add(Type.BOTH);
-    ComboBox<Type> gameTypeDropdown = new ComboBox<>(FXCollections.observableList(types));
-    gameTypeDropdown.valueProperty().set(Type.BOTH);
+    ObservableList<Type> types = FXCollections.observableArrayList(new ArrayList<>(Arrays.asList(Type.values())));
+    gameTypeDropdown = new ComboBox<>(types);
+    gameTypeDropdown.valueProperty().set(Type.CONJUNCTIVE);
 
     startButton.setText("Compute");
-    startButton.setOnAction(event -> {
-      Type currentType = gameTypeDropdown.valueProperty().get();
-      StringBuilder stringBuilder = new StringBuilder();
-      switch (currentType) {
-        case CONJUNCTIVE:
-          stringBuilder.append("Conjunctive: \n");
-          stringBuilder.append(initGame.computeConjunctiveGame().toString());
-          break;
-        case DISJUNCTIVE:
-          stringBuilder.append("Disjunctive: \n");
-          stringBuilder.append(initGame.computeDisjunctiveGame().toString());
-          break;
-        case BOTH:
-        default:
-          stringBuilder.append("Conjunctive: \n");
-          stringBuilder.append(initGame.computeConjunctiveGame().toString());
-          stringBuilder.append("\n");
-          stringBuilder.append("Disjunctive: \n");
-          stringBuilder.append(initGame.computeDisjunctiveGame().toString());
-          break;
-      }
-      answerArea.setText(stringBuilder.toString());
-    });
+    startButton.setOnAction(event -> run());
 
 
     header.getChildren().add(createPlayersCountPart("Players count:", comboBox));
     header.getChildren().add(startButton);
     header.getChildren().add(gameTypeDropdown);
     return header;
+  }
+
+  private void run() {
+    try {
+      initGame.setBalancedParam(Float.parseFloat(alphaField.textProperty().get()));
+    } catch(NumberFormatException e) {
+      e.printStackTrace();
+      initGame.setBalancedParam(0.5f);
+    }
+    Type currentType = gameTypeDropdown.valueProperty().get();
+    StringBuilder stringBuilder = new StringBuilder();
+    switch (currentType) {
+      case CONJUNCTIVE:
+        stringBuilder.append("Conjunctive: \n");
+        stringBuilder.append(initGame.computeConjunctiveGame().toString());
+        break;
+      case DISJUNCTIVE:
+        stringBuilder.append("Disjunctive: \n");
+        stringBuilder.append(initGame.computeDisjunctiveGame().toString());
+        break;
+      case DUAL_GAME:
+        stringBuilder.append("Dual: \n");
+        stringBuilder.append(initGame.computeDualGame().toString());
+        break;
+      case BALANCED_GAME:
+        stringBuilder.append("Balanced: \n");
+        stringBuilder.append(initGame.computeBalancedGame().toString());
+        break;
+      case CONJUNCTIVE_BALANCED:
+        stringBuilder.append("Conjunctive: \n");
+        stringBuilder.append(initGame.computeBalancedGame().computeConjunctiveGame().toString());
+        break;
+    }
+    answerArea.setText(stringBuilder.toString());
   }
 
   private Node createPlayersCountPart(String textLabel, Node field) {

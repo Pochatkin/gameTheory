@@ -48,7 +48,7 @@ public class Game {
         return coalitionsValue.get(coalitionWithAllPlayers) - coalitionsValue.get(coalition1);
       }
     }
-    return 0;
+    return coalitionsValue.get(coalition);
   }
 
   private boolean isDual(Coalition coalition, Coalition coalition1) {
