@@ -15,10 +15,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main1 extends Application {
   private FileChooser fileChooser;
@@ -46,10 +43,9 @@ public class Main1 extends Application {
     HBox contentBox = new HBox();
     contentBox.setSpacing(30);
 
-
-
     contentBox.getChildren().add(new Label("Alpha: "));
     alphaField = new TextField();
+    alphaField.textProperty().setValue("0.1");
     contentBox.getChildren().add(alphaField);
 
     Button startButton = new Button();
@@ -61,9 +57,12 @@ public class Main1 extends Application {
     answerArea.setMinHeight(400);
     contentBox.getChildren().add(answerArea);
 
+    Button button = new Button("check");
+    contentBox.getChildren().add(button);
+    button.setOnAction(actionEvent -> answerArea.textProperty().setValue(String.valueOf(initGame.checkBounds())));
+
 
     Node header = createHeader(stage);
-
     root.getChildren().add(header);
     root.getChildren().add(contentBox);
 
@@ -158,6 +157,23 @@ public class Main1 extends Application {
         stringBuilder.append("Disjunctive balanced: \n");
         stringBuilder.append(initGame.computeBalancedGame().computeDisjunctiveGame().toString());
         break;
+      case ALPHA_NUCLEOLUS:
+        stringBuilder.append(alphaField.textProperty().get()).append("-nucleolus of (N, r): \n");
+        Game balancedGame = initGame;
+        List<Coalition> coalitions = balancedGame.computeDisjunctiveCoalitions();
+
+
+        Map<Player, Float> playerFloatMap = new HashMap<>();
+        Game.computeDivision(balancedGame, balancedGame.coalitionWithAllPlayers, coalitions, playerFloatMap);
+        float sum = 0;
+        for (Player player : playerFloatMap.keySet()) {
+          sum += playerFloatMap.get(player);
+        }
+        playerFloatMap.put(
+                balancedGame.players[0],
+                balancedGame.coalitionsValue.get(balancedGame.coalitionWithAllPlayers) - sum
+        );
+        stringBuilder.append(playerFloatMap.values().toString());
     }
     answerArea.setText(stringBuilder.toString());
   }
