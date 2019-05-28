@@ -1,3 +1,5 @@
+package gameTheory;
+
 import entity.Coalition;
 import entity.CoalitionUtils;
 import entity.Game;
@@ -13,9 +15,13 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
+
+import static gameTheory.Type.CONJUNCTIVE;
+import static gameTheory.Type.values;
 
 public class Main1 extends Application {
   private FileChooser fileChooser;
@@ -107,9 +113,9 @@ public class Main1 extends Application {
     });
 
 
-    ObservableList<Type> types = FXCollections.observableArrayList(new ArrayList<>(Arrays.asList(Type.values())));
+    ObservableList<Type> types = FXCollections.observableArrayList(new ArrayList<>(Arrays.asList(values())));
     gameTypeDropdown = new ComboBox<>(types);
-    gameTypeDropdown.valueProperty().set(Type.CONJUNCTIVE);
+    gameTypeDropdown.valueProperty().set(CONJUNCTIVE);
 
 
     HBox box = new HBox();

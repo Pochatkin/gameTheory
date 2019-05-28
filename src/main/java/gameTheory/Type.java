@@ -1,3 +1,5 @@
+package gameTheory;
+
 public enum Type {
   CONJUNCTIVE,
   DISJUNCTIVE,
