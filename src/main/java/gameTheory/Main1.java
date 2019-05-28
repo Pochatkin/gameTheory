@@ -63,9 +63,6 @@ public class Main1 extends Application {
     answerArea.setMinHeight(400);
     contentBox.getChildren().add(answerArea);
 
-    Button button = new Button("check");
-    contentBox.getChildren().add(button);
-    button.setOnAction(actionEvent -> answerArea.textProperty().setValue(String.valueOf(initGame.checkBounds())));
 
 
     Node header = createHeader(stage);
@@ -165,19 +162,29 @@ public class Main1 extends Application {
         break;
       case ALPHA_NUCLEOLUS:
         stringBuilder.append(alphaField.textProperty().get()).append("-nucleolus of (N, r): \n");
-        Game balancedGame = initGame;
+        Game balancedGame = initGame.computeBalancedGame().copy();
         List<Coalition> coalitions = balancedGame.computeDisjunctiveCoalitions();
 
+        boolean isMonotonic = initGame.checkMonotonic();
+        boolean isConvex = balancedGame.checkConcave();
+        if (!(isConvex && isMonotonic)) {
+          stringBuilder.append("Function doesn't satisfy required properties. \n");
+          stringBuilder.append("monotonic: ").append(isMonotonic).append("\n");
+          stringBuilder.append("concave: ").append(isConvex).append("\n");
+          break;
+        }
+
+        Game balancedDis = balancedGame.computeDisjunctiveGame();
 
         Map<Player, Float> playerFloatMap = new HashMap<>();
-        Game.computeDivision(balancedGame, balancedGame.coalitionWithAllPlayers, coalitions, playerFloatMap);
+        Game.computeDivision(balancedDis, balancedDis.coalitionWithAllPlayers, coalitions, playerFloatMap);
         float sum = 0;
         for (Player player : playerFloatMap.keySet()) {
           sum += playerFloatMap.get(player);
         }
         playerFloatMap.put(
-                balancedGame.players[0],
-                balancedGame.coalitionsValue.get(balancedGame.coalitionWithAllPlayers) - sum
+                balancedDis.players[0],
+                balancedDis.coalitionsValue.get(balancedDis.coalitionWithAllPlayers) - sum
         );
         stringBuilder.append(playerFloatMap.values().toString());
     }

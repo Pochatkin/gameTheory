@@ -5,6 +5,13 @@ import java.util.*;
 public class Coalition implements Comparable<Coalition> {
   public final List<Player> players = new ArrayList<>();
 
+  public Coalition copy(Map<Integer, Player> newPlayerMap) {
+    Coalition coalition = new Coalition();
+    for (Player player : players) {
+      coalition.addPlayer(newPlayerMap.get(player.key));
+    }
+    return coalition;
+  }
 
   public void addPlayer(Player player) {
     players.add(player);

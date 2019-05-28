@@ -11,6 +11,14 @@ public class Player {
     this.key = key;
   }
 
+  public Player copy() {
+    Player player = new Player(key);
+    for (Player pred : predecessors) {
+      player.addPredecessor(pred.copy());
+    }
+    return player;
+  }
+
   public void addPredecessor(Player predecessor) {
     predecessors.add(predecessor);
     predecessor.children.add(this);

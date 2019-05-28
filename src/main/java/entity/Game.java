@@ -12,6 +12,24 @@ public class Game {
     this.players = players;
   }
 
+  public Game copy() {
+    Player[] players = new Player[this.players.length];
+    for (int i = 0; i < players.length; i++) {
+      players[i] = this.players[i].copy();
+    }
+    Game result = new Game(players);
+    Map<Integer, Player> copyPlayersMap = new HashMap<>();
+    for (Player player : players) {
+      copyPlayersMap.put(player.key, player);
+    }
+    for (Coalition coalition : coalitionsValue.keySet()) {
+      result.putCoalition(coalition.copy(copyPlayersMap), coalitionsValue.get(coalition));
+    }
+    result.coalitionWithAllPlayers = coalitionWithAllPlayers.copy(copyPlayersMap);
+    result.balancedParam = balancedParam;
+    return result;
+  }
+
   public void putCoalition(Coalition coalition, float value) {
     coalitionsValue.put(coalition, value);
     if (coalition.players.size() == players.length) {
@@ -74,12 +92,23 @@ public class Game {
     return true;
   }
 
-  public boolean checkBounds() {
+  public boolean checkMonotonic() {
+//    System.out.println("values: " + coalitionsValue);
     for (Coalition coalition : coalitionsValue.keySet()) {
       if (coalition == coalitionWithAllPlayers) continue;
-      if (coalitionsValue.get(coalitionWithAllPlayers) <= coalitionsValue.get(coalition)) {
+      if (coalitionsValue.get(coalitionWithAllPlayers) < coalitionsValue.get(coalition)) {
+        System.out.println("all players: " + coalitionWithAllPlayers);
+        System.out.println("value: " + coalitionsValue.get(coalitionWithAllPlayers));
+        System.out.println("coalition: " + coalition);
+        System.out.println("value: " + coalitionsValue.get(coalition));
         return false;
       }
+    }
+    return true;
+  }
+
+  public boolean checkConcave() {
+    for (Coalition coalition : coalitionsValue.keySet()) {
       for (Coalition coalition1 : coalitionsValue.keySet()) {
         if (coalition == coalition1) continue;
 
@@ -90,7 +119,7 @@ public class Game {
 
 
         boolean b = coalitionsValue.get(coalition) + coalitionsValue.get(coalition1)
-                <= coalitionsValue.get(coalitionWithAllPlayers) + intersectionValue;
+                >= coalitionsValue.get(coalitionWithAllPlayers) + intersectionValue;
         if (!b) {
           return false;
         }
