@@ -166,11 +166,11 @@ public class Main1 extends Application {
         List<Coalition> coalitions = balancedGame.computeDisjunctiveCoalitions();
 
         boolean isMonotonic = initGame.checkMonotonic();
-        boolean isConvex = balancedGame.checkConcave();
-        if (!(isConvex && isMonotonic)) {
+        boolean isConcave = balancedGame.checkConcave();
+        if (!(isConcave && isMonotonic)) {
           stringBuilder.append("Function doesn't satisfy required properties. \n");
-          stringBuilder.append("monotonic: ").append(isMonotonic).append("\n");
-          stringBuilder.append("concave: ").append(isConvex).append("\n");
+          stringBuilder.append("monotonicity: ").append(isMonotonic).append("\n");
+          stringBuilder.append("concavity: ").append(isConcave).append("\n");
           break;
         }
 
